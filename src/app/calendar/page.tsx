@@ -2,6 +2,7 @@ import Link from "next/link";
 import CalendarGrid from "@/components/CalendarGrid";
 import StatsPanel from "@/components/StatsPanel";
 import { getEntriesInRange, todayDateString } from "@/lib/entries";
+import { getDatesWithImagesInRange } from "@/lib/images";
 import { getStats } from "@/lib/stats";
 import type { Mood } from "@/types";
 
@@ -37,6 +38,7 @@ export default async function CalendarPage({
   for (const entry of entries) {
     moodByDate[entry.date] = entry.mood;
   }
+  const imageDates = getDatesWithImagesInRange(startDate, endDate);
 
   const stats = getStats(year, month);
   const monthLabel = new Date(year, month - 1, 1).toLocaleDateString(
@@ -82,6 +84,7 @@ export default async function CalendarPage({
         year={year}
         month={month}
         moodByDate={moodByDate}
+        imageDates={imageDates}
         todayStr={todayStr}
       />
 

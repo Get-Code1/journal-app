@@ -38,4 +38,12 @@ export interface Entry {
 
 export interface EntrySummary extends Entry {
   wordCount: number;
+  hasImages: boolean;
+}
+
+export interface ImageAttachment {
+  id: number;
+  date: string;
+  filename: string;
+  createdAt: string;
 }

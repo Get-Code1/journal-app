@@ -36,6 +36,16 @@ function createDb(): DatabaseSync {
     );
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS images (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_images_date ON images (date);`);
+
   return db;
 }
 

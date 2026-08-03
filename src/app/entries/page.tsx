@@ -50,6 +50,11 @@ export default function EntriesPage() {
                 <div className="flex items-center gap-2 text-sm font-medium">
                   {moodEmoji(entry.mood) && <span>{moodEmoji(entry.mood)}</span>}
                   <span>{formatDate(entry.date)}</span>
+                  {entry.hasImages && (
+                    <span className="text-xs opacity-60" aria-label="Has photos">
+                      📷
+                    </span>
+                  )}
                 </div>
                 <span className="text-xs text-foreground-muted">
                   {entry.wordCount} words

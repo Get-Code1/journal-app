@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEntry, upsertEntry, wordCount } from "@/lib/entries";
+import { getImagesForDate } from "@/lib/images";
 import type { Mood } from "@/types";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -15,6 +16,8 @@ export async function GET(
   }
 
   const entry = getEntry(date);
+  const images = getImagesForDate(date);
+
   if (!entry) {
     return NextResponse.json({
       entry: {
@@ -25,10 +28,15 @@ export async function GET(
         updated_at: null,
       },
       wordCount: 0,
+      images,
     });
   }
 
-  return NextResponse.json({ entry, wordCount: wordCount(entry.content) });
+  return NextResponse.json({
+    entry,
+    wordCount: wordCount(entry.content),
+    images,
+  });
 }
 
 export async function PUT(

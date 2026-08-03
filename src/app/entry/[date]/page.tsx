@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Editor from "@/components/Editor";
 import { getEntry, todayDateString } from "@/lib/entries";
+import { getImagesForDate } from "@/lib/images";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -16,6 +17,7 @@ export default async function EntryPage({
   if (!DATE_RE.test(date)) notFound();
 
   const entry = getEntry(date);
+  const images = getImagesForDate(date);
   const isToday = date === todayDateString();
 
   return (
@@ -31,6 +33,7 @@ export default async function EntryPage({
         date={date}
         initialContent={entry?.content ?? ""}
         initialMood={entry?.mood ?? null}
+        initialImages={images}
         isToday={isToday}
       />
     </div>

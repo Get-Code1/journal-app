@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import ImageGallery from "@/components/ImageGallery";
 import MoodPicker from "@/components/MoodPicker";
 import SavedIndicator, { type SaveStatus } from "@/components/SavedIndicator";
-import type { Mood } from "@/types";
+import type { ImageAttachment, Mood } from "@/types";
 
 function formatDateHeading(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -26,6 +27,7 @@ interface EditorProps {
   date: string;
   initialContent: string;
   initialMood: Mood | null;
+  initialImages: ImageAttachment[];
   isToday?: boolean;
 }
 
@@ -35,6 +37,7 @@ export default function Editor({
   date,
   initialContent,
   initialMood,
+  initialImages,
   isToday,
 }: EditorProps) {
   const [content, setContent] = useState(initialContent);
@@ -124,6 +127,8 @@ export default function Editor({
       <div className="flex items-center justify-between text-xs text-foreground-muted">
         <span>{countWords(content)} words</span>
       </div>
+
+      <ImageGallery date={date} initialImages={initialImages} />
     </div>
   );
 }

@@ -72,6 +72,11 @@ export default async function SearchPage({
               <div className="mb-1.5 flex items-center gap-2 text-sm font-medium">
                 {moodEmoji(result.mood) && <span>{moodEmoji(result.mood)}</span>}
                 <span>{formatDate(result.date)}</span>
+                {result.hasImages && (
+                  <span className="text-xs opacity-60" aria-label="Has photos">
+                    📷
+                  </span>
+                )}
               </div>
               <p className="prose-journal text-sm text-foreground-muted">
                 {result.snippet}

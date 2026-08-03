@@ -1,6 +1,7 @@
 import db from "@/lib/db";
 import { mondayOfWeek, shiftDateString, todayDateString } from "@/lib/date";
 import { getEntriesInRange } from "@/lib/entries";
+import { getDatesWithImages } from "@/lib/images";
 import type { Entry, EntrySummary, Mood } from "@/types";
 
 export interface GoalProgress {
@@ -51,7 +52,8 @@ export interface Memory {
 function toSummary(entry: Entry): EntrySummary {
   const trimmed = entry.content.trim();
   const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
-  return { ...entry, wordCount };
+  const hasImages = getDatesWithImages([entry.date]).has(entry.date);
+  return { ...entry, wordCount, hasImages };
 }
 
 export function getMemory(): Memory | null {

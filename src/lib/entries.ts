@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import { getDatesWithImages } from "@/lib/images";
 import type { Entry, EntrySummary, Mood } from "@/types";
 
 export { todayDateString } from "@/lib/date";
@@ -9,8 +10,13 @@ export function wordCount(text: string): number {
   return trimmed.split(/\s+/).length;
 }
 
-function toSummary(entry: Entry): EntrySummary {
-  return { ...entry, wordCount: wordCount(entry.content) };
+function toSummaries(entries: Entry[]): EntrySummary[] {
+  const withImages = getDatesWithImages(entries.map((e) => e.date));
+  return entries.map((entry) => ({
+    ...entry,
+    wordCount: wordCount(entry.content),
+    hasImages: withImages.has(entry.date),
+  }));
 }
 
 export function getEntry(date: string): Entry | null {
@@ -45,7 +51,7 @@ export function getAllEntries(): EntrySummary[] {
   const rows = db
     .prepare("SELECT * FROM entries ORDER BY date DESC")
     .all() as unknown as Entry[];
-  return rows.map(toSummary);
+  return toSummaries(rows);
 }
 
 export function getEntriesInRange(
@@ -57,7 +63,7 @@ export function getEntriesInRange(
       "SELECT * FROM entries WHERE date >= ? AND date <= ? ORDER BY date ASC"
     )
     .all(startDate, endDate) as unknown as Entry[];
-  return rows.map(toSummary);
+  return toSummaries(rows);
 }
 
 export interface SearchResult extends EntrySummary {
@@ -90,8 +96,9 @@ export function searchEntries(query: string): SearchResult[] {
     )
     .all(`%${trimmed}%`) as unknown as Entry[];
 
-  return rows.map((row) => ({
-    ...toSummary(row),
-    snippet: buildSnippet(row.content, trimmed),
+  const summaries = toSummaries(rows);
+  return summaries.map((summary, i) => ({
+    ...summary,
+    snippet: buildSnippet(rows[i].content, trimmed),
   }));
 }

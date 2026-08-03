@@ -12,6 +12,7 @@ interface CalendarGridProps {
   year: number;
   month: number; // 1-12
   moodByDate: Record<string, Mood | null>;
+  imageDates?: Set<string>;
   todayStr: string;
 }
 
@@ -19,6 +20,7 @@ export default function CalendarGrid({
   year,
   month,
   moodByDate,
+  imageDates,
   todayStr,
 }: CalendarGridProps) {
   const firstOfMonth = new Date(year, month - 1, 1);
@@ -48,6 +50,7 @@ export default function CalendarGrid({
         }
         const dateStr = `${year}-${pad(month)}-${pad(day)}`;
         const mood = moodByDate[dateStr];
+        const hasImages = imageDates?.has(dateStr);
         const isToday = dateStr === todayStr;
 
         const moodLabel = mood
@@ -59,10 +62,15 @@ export default function CalendarGrid({
             key={dateStr}
             href={`/entry/${dateStr}`}
             title={moodLabel ? `${dateStr}: ${moodLabel}` : dateStr}
-            className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-xl text-sm transition-all duration-150 hover:scale-[1.04] hover:bg-surface-hover active:scale-95 ${
+            className={`relative flex aspect-square flex-col items-center justify-center gap-1 rounded-xl text-sm transition-all duration-150 hover:scale-[1.04] hover:bg-surface-hover active:scale-95 ${
               isToday ? "ring-1 ring-accent" : ""
             }`}
           >
+            {hasImages && (
+              <span className="absolute right-1 top-1 text-[9px] leading-none opacity-70">
+                📷
+              </span>
+            )}
             <span
               className={isToday ? "font-semibold text-accent" : "text-foreground/80"}
             >
