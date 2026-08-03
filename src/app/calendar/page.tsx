@@ -54,7 +54,7 @@ export default async function CalendarPage({
         <div className="flex items-center gap-1">
           <Link
             href={`/calendar?year=${prev.year}&month=${prev.month}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/60 hover:bg-surface-muted"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-90"
             aria-label="Previous month"
           >
             ‹
@@ -64,7 +64,7 @@ export default async function CalendarPage({
           </h1>
           <Link
             href={`/calendar?year=${next.year}&month=${next.month}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/60 hover:bg-surface-muted"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-90"
             aria-label="Next month"
           >
             ›
@@ -72,7 +72,7 @@ export default async function CalendarPage({
         </div>
         <Link
           href="/calendar"
-          className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-foreground/60 hover:bg-surface-muted"
+          className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-95"
         >
           Today
         </Link>

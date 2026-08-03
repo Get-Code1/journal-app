@@ -22,7 +22,7 @@ export default async function EntryPage({
     <div className="flex flex-col gap-4">
       <Link
         href="/calendar"
-        className="w-fit text-sm text-foreground/50 hover:text-foreground"
+        className="w-fit text-sm text-foreground-muted transition-colors hover:text-foreground"
       >
         ← Back to calendar
       </Link>

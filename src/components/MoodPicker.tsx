@@ -20,10 +20,10 @@ export default function MoodPicker({ value, onChange }: MoodPickerProps) {
             title={mood.label}
             aria-label={mood.label}
             aria-pressed={selected}
-            className={`flex h-10 w-10 items-center justify-center rounded-full text-xl transition-all ${
+            className={`flex h-10 w-10 items-center justify-center rounded-full text-xl transition-all duration-150 active:scale-90 ${
               selected
                 ? "bg-accent-soft ring-2 ring-accent scale-105"
-                : "hover:bg-surface-muted opacity-60 hover:opacity-100"
+                : "opacity-60 hover:bg-surface-hover hover:opacity-100"
             }`}
           >
             {mood.emoji}

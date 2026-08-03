@@ -31,28 +31,31 @@ export default function EntriesPage() {
       <h1 className="text-xl font-medium tracking-tight">All entries</h1>
 
       {entries.length === 0 && (
-        <p className="text-sm text-foreground/40">
-          No entries yet. Start writing on the Today page.
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+          <span className="text-3xl">📔</span>
+          <p className="text-sm text-foreground-muted">
+            No entries yet. Start writing on the Today page.
+          </p>
+        </div>
       )}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-3">
         {entries.map((entry) => (
           <li key={entry.date}>
             <Link
               href={`/entry/${entry.date}`}
-              className="block rounded-2xl border border-border-subtle bg-surface p-4 hover:border-accent"
+              className="block rounded-2xl border border-border-subtle bg-surface p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
             >
-              <div className="mb-1 flex items-center justify-between gap-2">
+              <div className="mb-1.5 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   {moodEmoji(entry.mood) && <span>{moodEmoji(entry.mood)}</span>}
                   <span>{formatDate(entry.date)}</span>
                 </div>
-                <span className="text-xs text-foreground/40">
+                <span className="text-xs text-foreground-muted">
                   {entry.wordCount} words
                 </span>
               </div>
-              <p className="text-sm text-foreground/60">
+              <p className="prose-journal text-sm text-foreground-muted">
                 {entry.content ? preview(entry.content) : "Empty entry"}
               </p>
             </Link>

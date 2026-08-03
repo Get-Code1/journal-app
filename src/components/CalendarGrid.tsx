@@ -37,7 +37,7 @@ export default function CalendarGrid({
       {WEEKDAY_LABELS.map((label) => (
         <div
           key={label}
-          className="pb-1 text-center text-xs font-medium text-foreground/40"
+          className="pb-1 text-center text-xs font-medium text-foreground-muted"
         >
           {label}
         </div>
@@ -54,7 +54,7 @@ export default function CalendarGrid({
           <Link
             key={dateStr}
             href={`/entry/${dateStr}`}
-            className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-xl text-sm transition-colors hover:bg-surface-muted ${
+            className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-xl text-sm transition-all duration-150 hover:scale-[1.04] hover:bg-surface-hover active:scale-95 ${
               isToday ? "ring-1 ring-accent" : ""
             }`}
           >

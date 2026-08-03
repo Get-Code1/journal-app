@@ -1,41 +1,165 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf8f5;
-  --foreground: #2d2a26;
+  --background: #f7f6f2;
   --surface: #ffffff;
-  --surface-muted: #f2efe9;
-  --border-subtle: #e6e1d8;
-  --accent: #8b7355;
-  --accent-soft: #ede7dc;
+  --surface-hover: #f1eee7;
+  --surface-muted: #efece4;
+  --border: #e7e3da;
+  --border-subtle: #ede9e1;
+  --foreground: #201e1b;
+  --foreground-muted: #75695e;
+  --accent: #c1633a;
+  --accent-hover: #ab5330;
+  --accent-foreground: #fffaf6;
+  --accent-soft: #f4e3d6;
+  --shadow-color: 30 12% 20%;
+}
+
+:root[data-theme="dark"] {
+  --background: #171513;
+  --surface: #211e1a;
+  --surface-hover: #29251f;
+  --surface-muted: #262320;
+  --border: #332e27;
+  --border-subtle: #2b2721;
+  --foreground: #ede8e0;
+  --foreground-muted: #a69c8d;
+  --accent: #e2955f;
+  --accent-hover: #eda978;
+  --accent-foreground: #1b1108;
+  --accent-soft: #3a2a1c;
+  --shadow-color: 0 0% 0%;
+}
+
+:root[data-theme="paper"] {
+  --background: #f4ecda;
+  --surface: #fffbf1;
+  --surface-hover: #efe5d0;
+  --surface-muted: #ece1c9;
+  --border: #e4d6b8;
+  --border-subtle: #ecdfc4;
+  --foreground: #2e2818;
+  --foreground-muted: #7a6d4e;
+  --accent: #b2542e;
+  --accent-hover: #9c4826;
+  --accent-foreground: #fff8ef;
+  --accent-soft: #ebd3b9;
+  --shadow-color: 35 30% 20%;
+}
+
+:root[data-theme="midnight"] {
+  --background: #0d1220;
+  --surface: #141b2e;
+  --surface-hover: #1b2440;
+  --surface-muted: #182036;
+  --border: #232d4a;
+  --border-subtle: #1c2438;
+  --foreground: #e6eaf7;
+  --foreground-muted: #8d97b8;
+  --accent: #e3a458;
+  --accent-hover: #edb471;
+  --accent-foreground: #1b1304;
+  --accent-soft: #2c2416;
+  --shadow-color: 220 60% 4%;
+}
+
+:root[data-theme="forest"] {
+  --background: #edf1e6;
+  --surface: #f8faf4;
+  --surface-hover: #e6ebdc;
+  --surface-muted: #e4e9d9;
+  --border: #d9e1cc;
+  --border-subtle: #e2e8d6;
+  --foreground: #22291d;
+  --foreground-muted: #64715a;
+  --accent: #a9622f;
+  --accent-hover: #925329;
+  --accent-foreground: #fff9f0;
+  --accent-soft: #e7d9be;
+  --shadow-color: 100 20% 15%;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-source-serif);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1a18;
-    --foreground: #e8e4dd;
-    --surface: #26231f;
-    --surface-muted: #2f2b26;
-    --border-subtle: #3a352e;
-    --accent: #c2a97e;
-    --accent-soft: #3a3229;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+html[data-theme="dark"],
+html[data-theme="midnight"] {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+/* Comfortable long-form reading */
+.prose-journal {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  line-height: 1.75;
+  letter-spacing: 0.005em;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-in {
+  animation: page-in 0.28s ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-in,
+  .animate-fade-in {
+    animation: none;
+  }
 }

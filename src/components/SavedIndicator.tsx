@@ -12,10 +12,14 @@ export default function SavedIndicator({ status }: { status: SaveStatus }) {
       ? "Saved"
       : "Couldn't save";
 
-  const color =
-    status === "error" ? "text-red-500" : "text-foreground/40";
+  const color = status === "error" ? "text-red-500" : "text-foreground-muted";
 
   return (
-    <span className={`text-xs transition-opacity ${color}`}>{text}</span>
+    <span
+      key={status}
+      className={`animate-fade-in text-xs transition-opacity ${color}`}
+    >
+      {text}
+    </span>
   );
 }

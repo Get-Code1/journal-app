@@ -101,7 +101,7 @@ export default function Editor({
             {isToday ? "Today" : formatDateHeading(date)}
           </h1>
           {isToday && (
-            <p className="text-sm text-foreground/50">
+            <p className="text-sm text-foreground-muted">
               {formatDateHeading(date)}
             </p>
           )}
@@ -118,10 +118,10 @@ export default function Editor({
         onChange={(e) => handleContentChange(e.target.value)}
         placeholder="Write whatever's on your mind…"
         autoFocus
-        className="min-h-[50vh] w-full flex-1 resize-none rounded-2xl border border-border-subtle bg-surface p-5 text-[15px] leading-relaxed text-foreground placeholder:text-foreground/30 focus:border-accent focus:outline-none"
+        className="prose-journal min-h-[50vh] w-full flex-1 resize-none rounded-2xl border border-border-subtle bg-surface p-6 text-[17px] text-foreground shadow-sm transition-shadow duration-200 placeholder:text-foreground-muted/70 focus:border-accent focus:shadow-md focus:outline-none"
       />
 
-      <div className="flex items-center justify-between text-xs text-foreground/40">
+      <div className="flex items-center justify-between text-xs text-foreground-muted">
         <span>{countWords(content)} words</span>
       </div>
     </div>
