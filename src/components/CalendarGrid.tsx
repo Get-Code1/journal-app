@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Mood } from "@/types";
-import { MOOD_COLORS } from "@/types";
+import { MOOD_COLORS, MOODS } from "@/types";
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -50,10 +50,15 @@ export default function CalendarGrid({
         const mood = moodByDate[dateStr];
         const isToday = dateStr === todayStr;
 
+        const moodLabel = mood
+          ? MOODS.find((m) => m.value === mood)?.label
+          : undefined;
+
         return (
           <Link
             key={dateStr}
             href={`/entry/${dateStr}`}
+            title={moodLabel ? `${dateStr}: ${moodLabel}` : dateStr}
             className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-xl text-sm transition-all duration-150 hover:scale-[1.04] hover:bg-surface-hover active:scale-95 ${
               isToday ? "ring-1 ring-accent" : ""
             }`}

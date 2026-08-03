@@ -1,17 +1,7 @@
 import db from "@/lib/db";
-import { todayDateString } from "@/lib/entries";
+import { shiftDateString, todayDateString } from "@/lib/date";
 import { getTotalEntries } from "@/lib/stats";
 import type { Mood } from "@/types";
-
-function shiftDateString(dateStr: string, deltaDays: number): string {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const d = new Date(year, month - 1, day);
-  d.setDate(d.getDate() + deltaDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${dd}`;
-}
 
 const SEED_ENTRIES: { daysAgo: number; mood: Mood; content: string }[] = [
   {

@@ -27,6 +27,15 @@ function createDb(): DatabaseSync {
     );
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      display_name TEXT NOT NULL DEFAULT '',
+      weekly_goal INTEGER NOT NULL DEFAULT 5,
+      monthly_goal INTEGER NOT NULL DEFAULT 20
+    );
+  `);
+
   return db;
 }
 

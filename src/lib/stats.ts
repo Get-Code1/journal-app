@@ -1,20 +1,6 @@
 import db from "@/lib/db";
-import { todayDateString } from "@/lib/entries";
+import { shiftDateString, todayDateString } from "@/lib/date";
 import type { Mood } from "@/types";
-
-function dateStringToDate(dateStr: string): Date {
-  const [year, month, day] = dateStr.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function shiftDateString(dateStr: string, deltaDays: number): string {
-  const d = dateStringToDate(dateStr);
-  d.setDate(d.getDate() + deltaDays);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 export function getWritingStreak(): number {
   const rows = db

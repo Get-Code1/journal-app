@@ -29,7 +29,15 @@ export default async function SearchPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-medium tracking-tight">Search</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-medium tracking-tight">Search</h1>
+        <Link
+          href="/entries"
+          className="text-sm text-foreground-muted transition-colors hover:text-foreground"
+        >
+          Browse all entries →
+        </Link>
+      </div>
 
       <form method="GET" className="flex gap-2">
         <input

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/today", label: "Today" },
   { href: "/calendar", label: "Calendar" },
   { href: "/search", label: "Search" },
-  { href: "/entries", label: "All entries" },
   { href: "/settings", label: "Settings" },
 ];
 
@@ -18,7 +18,7 @@ export default function NavBar() {
     <header className="sticky top-0 z-10 border-b border-border-subtle bg-surface/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Link
-          href="/today"
+          href="/dashboard"
           className="shrink-0 text-sm font-medium tracking-tight text-foreground transition-opacity hover:opacity-70"
         >
           Journal
@@ -27,8 +27,8 @@ export default function NavBar() {
           {LINKS.map((link) => {
             const active =
               pathname === link.href ||
-              (link.href === "/today" && pathname === "/") ||
-              (link.href === "/entries" && pathname?.startsWith("/entry"));
+              (link.href === "/dashboard" && pathname === "/") ||
+              (link.href === "/calendar" && pathname?.startsWith("/entry"));
             return (
               <li key={link.href}>
                 <Link

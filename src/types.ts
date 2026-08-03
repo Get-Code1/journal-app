@@ -8,12 +8,24 @@ export const MOODS: { value: Mood; emoji: string; label: string }[] = [
   { value: "rough", emoji: "😞", label: "Rough" },
 ];
 
+// A diverging red -> neutral gray -> green scale (rough..great), with a true
+// gray midpoint so no hue sits at "okay" — validated for contrast against
+// both light and dark surfaces (see dataviz skill).
 export const MOOD_COLORS: Record<Mood, string> = {
-  great: "#4ade80",
-  good: "#86efac",
-  okay: "#fde68a",
-  low: "#fdba74",
-  rough: "#fca5a5",
+  rough: "#B3412E",
+  low: "#C97862",
+  okay: "#8F8D85",
+  good: "#6B9159",
+  great: "#4C7A3D",
+};
+
+// 1 (rough) .. 5 (great), for charting mood as a magnitude over time.
+export const MOOD_VALUES: Record<Mood, number> = {
+  rough: 1,
+  low: 2,
+  okay: 3,
+  good: 4,
+  great: 5,
 };
 
 export interface Entry {
