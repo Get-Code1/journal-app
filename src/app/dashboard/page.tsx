@@ -111,7 +111,7 @@ export default function DashboardPage() {
         <MoodTrendChart points={trend} />
       </div>
 
-      {memory && (
+      {memory ? (
         <Link
           href={`/entry/${memory.entry.date}`}
           className="flex flex-col gap-2 rounded-2xl border border-border-subtle bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
@@ -130,6 +130,13 @@ export default function DashboardPage() {
             {memory.entry.content.length > 200 ? "…" : ""}
           </p>
         </Link>
+      ) : (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-12 text-center">
+          <span className="text-2xl">🌱</span>
+          <p className="text-sm text-foreground-muted">
+            Memories will appear here once you&rsquo;ve written a few entries.
+          </p>
+        </div>
       )}
     </div>
   );

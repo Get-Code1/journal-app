@@ -23,7 +23,7 @@ export default function NavBar() {
         >
           Journal
         </Link>
-        <ul className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
+        <ul className="hidden items-center gap-1 overflow-x-auto whitespace-nowrap sm:flex">
           {LINKS.map((link) => {
             const active =
               pathname === link.href ||

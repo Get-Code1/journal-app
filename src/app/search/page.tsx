@@ -94,6 +94,15 @@ export default async function SearchPage({
           </p>
         </div>
       )}
+
+      {!query && (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+          <span className="text-3xl">📝</span>
+          <p className="text-sm text-foreground-muted">
+            Search for a word or phrase from any of your entries.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

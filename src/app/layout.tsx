@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
 import Script from "next/script";
+import BottomNav from "@/components/BottomNav";
+import GlobalShortcuts from "@/components/GlobalShortcuts";
 import NavBar from "@/components/NavBar";
 import ThemeProvider from "@/components/ThemeProvider";
 import PageTransition from "@/components/PageTransition";
@@ -44,9 +46,11 @@ export default function RootLayout({
         </Script>
         <ThemeProvider>
           <NavBar />
-          <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+          <GlobalShortcuts />
+          <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-10">
             <PageTransition>{children}</PageTransition>
           </main>
+          <BottomNav />
         </ThemeProvider>
       </body>
     </html>
