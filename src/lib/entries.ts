@@ -22,7 +22,7 @@ function toSummary(entry: Entry): EntrySummary {
 export function getEntry(date: string): Entry | null {
   const row = db
     .prepare("SELECT * FROM entries WHERE date = ?")
-    .get(date) as Entry | undefined;
+    .get(date) as unknown as Entry | undefined;
   return row ?? null;
 }
 
@@ -50,7 +50,7 @@ export function upsertEntry(
 export function getAllEntries(): EntrySummary[] {
   const rows = db
     .prepare("SELECT * FROM entries ORDER BY date DESC")
-    .all() as Entry[];
+    .all() as unknown as Entry[];
   return rows.map(toSummary);
 }
 
@@ -62,7 +62,7 @@ export function getEntriesInRange(
     .prepare(
       "SELECT * FROM entries WHERE date >= ? AND date <= ? ORDER BY date ASC"
     )
-    .all(startDate, endDate) as Entry[];
+    .all(startDate, endDate) as unknown as Entry[];
   return rows.map(toSummary);
 }
 
@@ -94,7 +94,7 @@ export function searchEntries(query: string): SearchResult[] {
     .prepare(
       "SELECT * FROM entries WHERE content LIKE ? COLLATE NOCASE ORDER BY date DESC"
     )
-    .all(`%${trimmed}%`) as Entry[];
+    .all(`%${trimmed}%`) as unknown as Entry[];
 
   return rows.map((row) => ({
     ...toSummary(row),

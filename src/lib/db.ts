@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import path from "path";
 import fs from "fs";
 
@@ -6,16 +6,16 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "journal.db");
 
 declare global {
-  var __journalDb: Database.Database | undefined;
+  var __journalDb: DatabaseSync | undefined;
 }
 
-function createDb(): Database.Database {
+function createDb(): DatabaseSync {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
 
-  const db = new Database(DB_PATH);
-  db.pragma("journal_mode = WAL");
+  const db = new DatabaseSync(DB_PATH);
+  db.exec("PRAGMA journal_mode = WAL;");
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS entries (

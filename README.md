@@ -4,6 +4,8 @@ A local, distraction-free daily journal. No accounts, no auth, no network calls 
 
 ## Running it
 
+Requires Node.js 22.5 or newer (uses the built-in `node:sqlite` module, so there's no native module to compile — no build tools needed on any platform).
+
 ```bash
 npm install
 npm run dev
@@ -37,4 +39,4 @@ Entries are stored one-per-day in a single SQLite table (`data/journal.db`, giti
 
 ## Stack
 
-Next.js (App Router) + TypeScript + Tailwind CSS + better-sqlite3.
+Next.js (App Router) + TypeScript + Tailwind CSS + Node's built-in `node:sqlite`.
