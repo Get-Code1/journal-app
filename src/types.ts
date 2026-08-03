@@ -40,6 +40,7 @@ export interface Entry {
 export interface EntrySummary extends Entry {
   wordCount: number;
   hasImages: boolean;
+  tags: string[];
 }
 
 export interface ImageAttachment {

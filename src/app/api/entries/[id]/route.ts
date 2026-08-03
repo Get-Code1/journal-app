@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { deleteEntry, getEntryById, updateEntry, wordCount } from "@/lib/entries";
 import { readJsonBody } from "@/lib/http";
 import { getImagesForEntry } from "@/lib/images";
+import { getTagsForEntry } from "@/lib/tags";
 import type { Mood } from "@/types";
 
 const VALID_MOODS: Mood[] = ["great", "good", "okay", "low", "rough"];
@@ -29,6 +30,7 @@ export async function GET(
     entry,
     wordCount: wordCount(entry.content),
     images: getImagesForEntry(id),
+    tags: getTagsForEntry(id),
   });
 }
 
@@ -50,13 +52,20 @@ export async function PUT(
     typeof body.mood === "string" && VALID_MOODS.includes(body.mood as Mood)
       ? (body.mood as Mood)
       : null;
+  const tags = Array.isArray(body.tags)
+    ? body.tags.filter((t: unknown): t is string => typeof t === "string")
+    : undefined;
 
-  const entry = updateEntry(id, content, mood);
+  const entry = updateEntry(id, content, mood, tags);
   if (!entry) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ entry, wordCount: wordCount(entry.content) });
+  return NextResponse.json({
+    entry,
+    wordCount: wordCount(entry.content),
+    tags: getTagsForEntry(id),
+  });
 }
 
 export async function DELETE(

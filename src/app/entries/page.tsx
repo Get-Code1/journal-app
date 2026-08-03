@@ -1,5 +1,7 @@
 import Link from "next/link";
+import TagChips from "@/components/TagChips";
 import { getAllEntries } from "@/lib/entries";
+import { getAllTags } from "@/lib/tags";
 import { MOODS } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +32,14 @@ function preview(content: string): string {
   return flat.length > 160 ? `${flat.slice(0, 160)}…` : flat;
 }
 
-export default function EntriesPage() {
-  const entries = getAllEntries();
+export default async function EntriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>;
+}) {
+  const { tag } = await searchParams;
+  const entries = getAllEntries(tag);
+  const allTags = getAllTags();
 
   // Same-day entries need their time shown to tell them apart.
   const dateCounts = new Map<string, number>();
@@ -43,11 +51,41 @@ export default function EntriesPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-medium tracking-tight">All entries</h1>
 
+      {allTags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Link
+            href="/entries"
+            className={`rounded-full px-2.5 py-1 text-xs transition-colors duration-150 ${
+              !tag
+                ? "bg-accent-soft text-accent"
+                : "bg-surface-muted text-foreground-muted hover:text-foreground"
+            }`}
+          >
+            All
+          </Link>
+          {allTags.map((t) => (
+            <Link
+              key={t.name}
+              href={`/entries?tag=${encodeURIComponent(t.name)}`}
+              className={`rounded-full px-2.5 py-1 text-xs transition-colors duration-150 ${
+                tag === t.name
+                  ? "bg-accent-soft text-accent"
+                  : "bg-surface-muted text-foreground-muted hover:text-foreground"
+              }`}
+            >
+              #{t.name} <span className="opacity-60">{t.count}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+
       {entries.length === 0 && (
         <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
           <span className="text-3xl">📔</span>
           <p className="text-sm text-foreground-muted">
-            No entries yet. Start writing on the Today page.
+            {tag
+              ? `No entries tagged #${tag}.`
+              : "No entries yet. Start writing on the Today page."}
           </p>
         </div>
       )}
@@ -80,6 +118,7 @@ export default function EntriesPage() {
               <p className="prose-journal text-sm text-foreground-muted">
                 {entry.content ? preview(entry.content) : "Empty entry"}
               </p>
+              <TagChips tags={entry.tags} />
             </Link>
           </li>
         ))}

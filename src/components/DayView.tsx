@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TagChips from "@/components/TagChips";
 import type { EntrySummary } from "@/types";
 import { MOODS } from "@/types";
 
@@ -91,6 +92,7 @@ export default function DayView({
                 <p className="prose-journal text-sm text-foreground-muted">
                   {entry.content ? preview(entry.content) : "Empty entry"}
                 </p>
+                <TagChips tags={entry.tags} />
               </Link>
             </li>
           ))}

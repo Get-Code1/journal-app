@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Editor from "@/components/Editor";
 import { getEntryById, todayDateString } from "@/lib/entries";
 import { getImagesForEntry } from "@/lib/images";
+import { getTagsForEntry } from "@/lib/tags";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -21,6 +22,7 @@ export default async function EntryByIdPage({
   if (!entry || entry.date !== date) notFound();
 
   const images = getImagesForEntry(entryId);
+  const tags = getTagsForEntry(entryId);
   const isToday = date === todayDateString();
 
   return (
@@ -37,6 +39,7 @@ export default async function EntryByIdPage({
         entryId={entryId}
         initialContent={entry.content}
         initialMood={entry.mood}
+        initialTags={tags}
         initialImages={images}
         isToday={isToday}
       />

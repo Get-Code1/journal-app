@@ -3,6 +3,7 @@ import DayView from "@/components/DayView";
 import Editor from "@/components/Editor";
 import { getEntriesForDate, wordCount } from "@/lib/entries";
 import { getImagesForEntry } from "@/lib/images";
+import { getTagsForEntry } from "@/lib/tags";
 
 // Shared by /today and /entry/[date]: shows a direct editor for the common
 // single-entry-per-day case (matches the original one-entry-a-day design),
@@ -23,6 +24,7 @@ export default function DayEntryPoint({
         entryId={null}
         initialContent=""
         initialMood={null}
+        initialTags={[]}
         initialImages={[]}
         isToday={isToday}
         keepUrlOnCreate={isToday}
@@ -33,6 +35,7 @@ export default function DayEntryPoint({
   if (entries.length === 1) {
     const entry = entries[0];
     const images = getImagesForEntry(entry.id);
+    const tags = getTagsForEntry(entry.id);
     return (
       <div className="flex flex-col gap-3">
         <Editor
@@ -40,6 +43,7 @@ export default function DayEntryPoint({
           entryId={entry.id}
           initialContent={entry.content}
           initialMood={entry.mood}
+          initialTags={tags}
           initialImages={images}
           isToday={isToday}
         />
@@ -57,6 +61,7 @@ export default function DayEntryPoint({
     ...entry,
     wordCount: wordCount(entry.content),
     hasImages: getImagesForEntry(entry.id).length > 0,
+    tags: getTagsForEntry(entry.id),
   }));
 
   return <DayView date={date} entries={summaries} isToday={isToday} />;

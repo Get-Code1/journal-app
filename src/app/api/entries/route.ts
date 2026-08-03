@@ -18,9 +18,10 @@ export async function GET(request: NextRequest) {
   const start = searchParams.get("start");
   const end = searchParams.get("end");
   const date = searchParams.get("date");
+  const tag = searchParams.get("tag") ?? undefined;
 
   if (q) {
-    return NextResponse.json({ results: searchEntries(q) });
+    return NextResponse.json({ results: searchEntries(q, tag) });
   }
 
   if (date) {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ entries: getEntriesInRange(start, end) });
   }
 
-  return NextResponse.json({ entries: getAllEntries() });
+  return NextResponse.json({ entries: getAllEntries(tag) });
 }
 
 export async function POST(request: NextRequest) {
@@ -53,7 +54,10 @@ export async function POST(request: NextRequest) {
     typeof body.mood === "string" && VALID_MOODS.includes(body.mood as Mood)
       ? (body.mood as Mood)
       : null;
+  const tags = Array.isArray(body.tags)
+    ? body.tags.filter((t: unknown): t is string => typeof t === "string")
+    : undefined;
 
-  const entry = createEntry(date, content, mood);
+  const entry = createEntry(date, content, mood, tags);
   return NextResponse.json({ entry });
 }

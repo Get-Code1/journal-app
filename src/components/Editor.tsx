@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ImageGallery from "@/components/ImageGallery";
 import MoodPicker from "@/components/MoodPicker";
 import SavedIndicator, { type SaveStatus } from "@/components/SavedIndicator";
+import TagInput from "@/components/TagInput";
 import type { ImageAttachment, Mood } from "@/types";
 
 function formatDateHeading(dateStr: string): string {
@@ -29,6 +30,7 @@ interface EditorProps {
   entryId: number | null;
   initialContent: string;
   initialMood: Mood | null;
+  initialTags: string[];
   initialImages: ImageAttachment[];
   isToday?: boolean;
   // When creating a brand new entry, stay on the current URL instead of
@@ -44,6 +46,7 @@ export default function Editor({
   entryId,
   initialContent,
   initialMood,
+  initialTags,
   initialImages,
   isToday,
   keepUrlOnCreate,
@@ -51,13 +54,14 @@ export default function Editor({
   const router = useRouter();
   const [content, setContent] = useState(initialContent);
   const [mood, setMood] = useState<Mood | null>(initialMood);
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [id, setId] = useState<number | null>(entryId);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [deleting, setDeleting] = useState(false);
 
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef({ content: initialContent, mood: initialMood });
+  const latest = useRef({ content: initialContent, mood: initialMood, tags: initialTags });
   const idRef = useRef<number | null>(entryId);
   const creating = useRef<Promise<number> | null>(null);
 
@@ -81,7 +85,7 @@ export default function Editor({
   }, [date]);
 
   const save = useCallback(
-    async (nextContent: string, nextMood: Mood | null) => {
+    async (nextContent: string, nextMood: Mood | null, nextTags: string[]) => {
       setStatus("saving");
       try {
         const wasNew = idRef.current === null;
@@ -89,7 +93,7 @@ export default function Editor({
         const res = await fetch(`/api/entries/${currentId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: nextContent, mood: nextMood }),
+          body: JSON.stringify({ content: nextContent, mood: nextMood, tags: nextTags }),
         });
         if (!res.ok) throw new Error("Save failed");
         setStatus("saved");
@@ -109,11 +113,11 @@ export default function Editor({
   );
 
   const scheduleSave = useCallback(
-    (nextContent: string, nextMood: Mood | null) => {
-      latest.current = { content: nextContent, mood: nextMood };
+    (nextContent: string, nextMood: Mood | null, nextTags: string[]) => {
+      latest.current = { content: nextContent, mood: nextMood, tags: nextTags };
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
       saveTimeout.current = setTimeout(() => {
-        save(latest.current.content, latest.current.mood);
+        save(latest.current.content, latest.current.mood, latest.current.tags);
       }, AUTOSAVE_DELAY);
     },
     [save]
@@ -128,12 +132,17 @@ export default function Editor({
 
   function handleContentChange(value: string) {
     setContent(value);
-    scheduleSave(value, mood);
+    scheduleSave(value, mood, tags);
   }
 
   function handleMoodChange(value: Mood) {
     setMood(value);
-    scheduleSave(content, value);
+    scheduleSave(content, value, tags);
+  }
+
+  function handleTagsChange(value: string[]) {
+    setTags(value);
+    scheduleSave(content, mood, value);
   }
 
   async function handleDelete() {
@@ -176,6 +185,8 @@ export default function Editor({
         autoFocus
         className="prose-journal min-h-[50vh] w-full flex-1 resize-none rounded-2xl border border-border-subtle bg-surface p-6 text-[17px] text-foreground shadow-sm transition-shadow duration-200 placeholder:text-foreground-muted/70 focus:border-accent focus:shadow-md focus:outline-none"
       />
+
+      <TagInput tags={tags} onChange={handleTagsChange} />
 
       <div className="flex items-center justify-between text-xs text-foreground-muted">
         <span>{countWords(content)} words</span>

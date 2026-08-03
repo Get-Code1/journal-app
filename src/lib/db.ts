@@ -135,6 +135,21 @@ function createDb(): DatabaseSync {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_images_date ON images (date);`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_images_entry_id ON images (entry_id);`);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS tags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE
+    );
+  `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS entry_tags (
+      entry_id INTEGER NOT NULL,
+      tag_id INTEGER NOT NULL,
+      PRIMARY KEY (entry_id, tag_id)
+    );
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_entry_tags_tag ON entry_tags (tag_id);`);
+
   return db;
 }
 

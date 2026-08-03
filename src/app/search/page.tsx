@@ -1,5 +1,7 @@
 import Link from "next/link";
+import TagChips from "@/components/TagChips";
 import { searchEntries } from "@/lib/entries";
+import { getAllTags } from "@/lib/tags";
 import { MOODS } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +23,12 @@ function formatDate(dateStr: string): string {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, tag } = await searchParams;
   const query = q?.trim() ?? "";
-  const results = query ? searchEntries(query) : [];
+  const results = query ? searchEntries(query, tag) : [];
+  const allTags = getAllTags();
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,6 +51,7 @@ export default async function SearchPage({
           autoFocus
           className="flex-1 rounded-full border border-border-subtle bg-surface px-4 py-2.5 text-sm shadow-sm transition-shadow focus:border-accent focus:shadow-md focus:outline-none"
         />
+        {tag && <input type="hidden" name="tag" value={tag} />}
         <button
           type="submit"
           className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground transition-all duration-150 hover:bg-accent-hover active:scale-95"
@@ -56,9 +60,35 @@ export default async function SearchPage({
         </button>
       </form>
 
+      {allTags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-foreground-muted">Filter:</span>
+          {allTags.map((t) => {
+            const params = new URLSearchParams();
+            if (query) params.set("q", query);
+            const isActive = tag === t.name;
+            if (!isActive) params.set("tag", t.name);
+            return (
+              <Link
+                key={t.name}
+                href={`/search?${params.toString()}`}
+                className={`rounded-full px-2.5 py-1 text-xs transition-colors duration-150 ${
+                  isActive
+                    ? "bg-accent-soft text-accent"
+                    : "bg-surface-muted text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                #{t.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
       {query && (
         <p className="text-sm text-foreground-muted">
           {`${results.length} result${results.length === 1 ? "" : "s"} for “${query}”`}
+          {tag && ` tagged #${tag}`}
         </p>
       )}
 
@@ -81,6 +111,7 @@ export default async function SearchPage({
               <p className="prose-journal text-sm text-foreground-muted">
                 {result.snippet}
               </p>
+              <TagChips tags={result.tags} />
             </Link>
           </li>
         ))}

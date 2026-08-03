@@ -30,6 +30,7 @@ export default async function NewEntryPage({
         entryId={null}
         initialContent=""
         initialMood={null}
+        initialTags={[]}
         initialImages={[]}
         isToday={isToday}
       />

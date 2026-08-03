@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import { deleteImage, getEntryIdsWithImages, getImagesForEntry } from "@/lib/images";
+import { getTagsForEntries, normalizeTagName, setTagsForEntry } from "@/lib/tags";
 import type { Entry, EntrySummary, Mood } from "@/types";
 
 export { todayDateString } from "@/lib/date";
@@ -12,11 +13,19 @@ export function wordCount(text: string): number {
 
 function toSummaries(entries: Entry[]): EntrySummary[] {
   const withImages = getEntryIdsWithImages(entries.map((e) => e.id));
+  const tagsByEntry = getTagsForEntries(entries.map((e) => e.id));
   return entries.map((entry) => ({
     ...entry,
     wordCount: wordCount(entry.content),
     hasImages: withImages.has(entry.id),
+    tags: tagsByEntry.get(entry.id) ?? [],
   }));
+}
+
+function filterByTag<T extends EntrySummary>(entries: T[], tag?: string): T[] {
+  if (!tag) return entries;
+  const name = normalizeTagName(tag);
+  return entries.filter((e) => e.tags.includes(name));
 }
 
 export function getEntryById(id: number): Entry | null {
@@ -45,7 +54,8 @@ export function getMoodForDate(date: string): Mood | null {
 export function createEntry(
   date: string,
   content: string,
-  mood: Mood | null
+  mood: Mood | null,
+  tags?: string[]
 ): Entry {
   const now = new Date().toISOString();
   const result = db
@@ -53,18 +63,22 @@ export function createEntry(
       `INSERT INTO entries (date, content, mood, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`
     )
     .run(date, content, mood, now, now);
-  return getEntryById(Number(result.lastInsertRowid))!;
+  const id = Number(result.lastInsertRowid);
+  if (tags) setTagsForEntry(id, tags);
+  return getEntryById(id)!;
 }
 
 export function updateEntry(
   id: number,
   content: string,
-  mood: Mood | null
+  mood: Mood | null,
+  tags?: string[]
 ): Entry | null {
   const now = new Date().toISOString();
   db.prepare(
     `UPDATE entries SET content = ?, mood = ?, updated_at = ? WHERE id = ?`
   ).run(content, mood, now, id);
+  if (tags) setTagsForEntry(id, tags);
   return getEntryById(id);
 }
 
@@ -76,11 +90,11 @@ export function deleteEntry(id: number): boolean {
   return result.changes > 0;
 }
 
-export function getAllEntries(): EntrySummary[] {
+export function getAllEntries(tag?: string): EntrySummary[] {
   const rows = db
     .prepare("SELECT * FROM entries ORDER BY date DESC, created_at DESC")
     .all() as unknown as Entry[];
-  return toSummaries(rows);
+  return filterByTag(toSummaries(rows), tag);
 }
 
 export function getEntriesInRange(
@@ -137,7 +151,7 @@ function buildSnippet(content: string, query: string): string {
   return snippet;
 }
 
-export function searchEntries(query: string): SearchResult[] {
+export function searchEntries(query: string, tag?: string): SearchResult[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
@@ -148,8 +162,9 @@ export function searchEntries(query: string): SearchResult[] {
     .all(`%${trimmed}%`) as unknown as Entry[];
 
   const summaries = toSummaries(rows);
-  return summaries.map((summary, i) => ({
+  const results = summaries.map((summary, i) => ({
     ...summary,
     snippet: buildSnippet(rows[i].content, trimmed),
   }));
+  return filterByTag(results, tag);
 }

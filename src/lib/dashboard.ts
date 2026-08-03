@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import { mondayOfWeek, shiftDateString, todayDateString } from "@/lib/date";
 import { getDatesWrittenInRange } from "@/lib/entries";
 import { getEntryIdsWithImages } from "@/lib/images";
+import { getTagsForEntry } from "@/lib/tags";
 import type { Entry, EntrySummary, Mood } from "@/types";
 
 export interface GoalProgress {
@@ -66,7 +67,8 @@ function toSummary(entry: Entry): EntrySummary {
   const trimmed = entry.content.trim();
   const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
   const hasImages = getEntryIdsWithImages([entry.id]).has(entry.id);
-  return { ...entry, wordCount, hasImages };
+  const tags = getTagsForEntry(entry.id);
+  return { ...entry, wordCount, hasImages, tags };
 }
 
 export function getMemory(): Memory | null {
