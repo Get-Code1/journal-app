@@ -131,6 +131,26 @@ export function getAllDatesWritten(): Set<string> {
   return new Set(rows.map((r) => r.date));
 }
 
+// A day's mood (calendar dot, mood trend, year heatmap) is its latest
+// entry's mood — entries with mood left unset don't blank out an earlier
+// one from the same day.
+export function getMoodByDateInRange(
+  startDate: string,
+  endDate: string
+): Record<string, Mood> {
+  const rows = db
+    .prepare(
+      "SELECT date, mood FROM entries WHERE date >= ? AND date <= ? ORDER BY date ASC, created_at ASC"
+    )
+    .all(startDate, endDate) as unknown as { date: string; mood: Mood | null }[];
+
+  const result: Record<string, Mood> = {};
+  for (const row of rows) {
+    if (row.mood) result[row.date] = row.mood;
+  }
+  return result;
+}
+
 export interface SearchResult extends EntrySummary {
   snippet: string;
 }

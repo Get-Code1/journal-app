@@ -1,10 +1,9 @@
 import Link from "next/link";
 import CalendarGrid from "@/components/CalendarGrid";
 import StatsPanel from "@/components/StatsPanel";
-import { getEntriesInRange, todayDateString } from "@/lib/entries";
+import { getMoodByDateInRange, todayDateString } from "@/lib/entries";
 import { getDatesWithImagesInRange } from "@/lib/images";
 import { getStats } from "@/lib/stats";
-import type { Mood } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -33,14 +32,7 @@ export default async function CalendarPage({
   const startDate = `${year}-${pad(month)}-01`;
   const endDate = `${year}-${pad(month)}-${pad(daysInMonth)}`;
 
-  // entries is ordered date ASC, created_at ASC, so the last entry of each
-  // day naturally overwrites earlier ones here — that's the "day's mood is
-  // its latest entry's mood" rule, skipping entries that left mood unset.
-  const entries = getEntriesInRange(startDate, endDate);
-  const moodByDate: Record<string, Mood | null> = {};
-  for (const entry of entries) {
-    if (entry.mood) moodByDate[entry.date] = entry.mood;
-  }
+  const moodByDate = getMoodByDateInRange(startDate, endDate);
   const imageDates = getDatesWithImagesInRange(startDate, endDate);
 
   const stats = getStats(year, month);
@@ -75,12 +67,20 @@ export default async function CalendarPage({
             ›
           </Link>
         </div>
-        <Link
-          href="/calendar"
-          className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-95"
-        >
-          Today
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/calendar/year"
+            className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-95"
+          >
+            Year view
+          </Link>
+          <Link
+            href="/calendar"
+            className="rounded-full border border-border-subtle px-3 py-1.5 text-sm text-foreground-muted transition-all duration-150 hover:bg-surface-hover active:scale-95"
+          >
+            Today
+          </Link>
+        </div>
       </div>
 
       <CalendarGrid

@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 import { mondayOfWeek, shiftDateString, todayDateString } from "@/lib/date";
-import { getDatesWrittenInRange } from "@/lib/entries";
+import { getDatesWrittenInRange, getMoodByDateInRange } from "@/lib/entries";
 import { getEntryIdsWithImages } from "@/lib/images";
 import { getTagsForEntry } from "@/lib/tags";
 import type { Entry, EntrySummary, Mood } from "@/types";
@@ -36,24 +36,12 @@ export interface MoodTrendPoint {
 export function getMoodTrend(days: number): MoodTrendPoint[] {
   const today = todayDateString();
   const start = shiftDateString(today, -(days - 1));
-
-  // Ordered oldest-to-newest so, per date, the last entry with a mood set
-  // wins — the same "day's mood = latest entry's mood" rule as the calendar.
-  const rows = db
-    .prepare(
-      "SELECT date, mood FROM entries WHERE date >= ? AND date <= ? ORDER BY date ASC, created_at ASC"
-    )
-    .all(start, today) as unknown as { date: string; mood: Mood | null }[];
-
-  const moodByDate = new Map<string, Mood | null>();
-  for (const row of rows) {
-    if (row.mood) moodByDate.set(row.date, row.mood);
-  }
+  const moodByDate = getMoodByDateInRange(start, today);
 
   const points: MoodTrendPoint[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const date = shiftDateString(today, -i);
-    points.push({ date, mood: moodByDate.get(date) ?? null });
+    points.push({ date, mood: moodByDate[date] ?? null });
   }
   return points;
 }
