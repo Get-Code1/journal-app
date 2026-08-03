@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageGallery from "@/components/ImageGallery";
+import MarkdownPreview from "@/components/MarkdownPreview";
+import MarkdownToolbar, {
+  type EditorMode,
+  type MarkdownAction,
+} from "@/components/MarkdownToolbar";
 import MoodPicker from "@/components/MoodPicker";
 import SavedIndicator, { type SaveStatus } from "@/components/SavedIndicator";
 import TagInput from "@/components/TagInput";
@@ -58,12 +63,14 @@ export default function Editor({
   const [id, setId] = useState<number | null>(entryId);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [deleting, setDeleting] = useState(false);
+  const [mode, setMode] = useState<EditorMode>("write");
 
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ content: initialContent, mood: initialMood, tags: initialTags });
   const idRef = useRef<number | null>(entryId);
   const creating = useRef<Promise<number> | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const ensureEntryId = useCallback(async (): Promise<number> => {
     if (idRef.current !== null) return idRef.current;
@@ -145,6 +152,55 @@ export default function Editor({
     scheduleSave(content, mood, value);
   }
 
+  function wrapSelection(before: string, after: string, placeholder: string) {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = content.slice(start, end) || placeholder;
+    const nextValue =
+      content.slice(0, start) + before + selected + after + content.slice(end);
+    handleContentChange(nextValue);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const cursorStart = start + before.length;
+      textarea.setSelectionRange(cursorStart, cursorStart + selected.length);
+    });
+  }
+
+  function prefixLine(prefix: string) {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const lineStart = content.lastIndexOf("\n", start - 1) + 1;
+    const nextValue = content.slice(0, lineStart) + prefix + content.slice(lineStart);
+    handleContentChange(nextValue);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const pos = start + prefix.length;
+      textarea.setSelectionRange(pos, pos);
+    });
+  }
+
+  function handleToolbarAction(action: MarkdownAction) {
+    switch (action) {
+      case "bold":
+        wrapSelection("**", "**", "bold text");
+        break;
+      case "italic":
+        wrapSelection("*", "*", "italic text");
+        break;
+      case "heading":
+        prefixLine("## ");
+        break;
+      case "list":
+        prefixLine("- ");
+        break;
+    }
+  }
+
   async function handleDelete() {
     if (id === null) return;
     if (!confirm("Delete this entry? This can't be undone.")) return;
@@ -178,13 +234,28 @@ export default function Editor({
 
       <MoodPicker value={mood} onChange={handleMoodChange} />
 
-      <textarea
-        value={content}
-        onChange={(e) => handleContentChange(e.target.value)}
-        placeholder="Write whatever's on your mind…"
-        autoFocus
-        className="prose-journal min-h-[50vh] w-full flex-1 resize-none rounded-2xl border border-border-subtle bg-surface p-6 text-[17px] text-foreground shadow-sm transition-shadow duration-200 placeholder:text-foreground-muted/70 focus:border-accent focus:shadow-md focus:outline-none"
-      />
+      <div className="flex flex-col gap-2">
+        <MarkdownToolbar
+          mode={mode}
+          onModeChange={setMode}
+          onAction={handleToolbarAction}
+        />
+
+        {mode === "write" ? (
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => handleContentChange(e.target.value)}
+            placeholder="Write whatever's on your mind…"
+            autoFocus
+            className="prose-journal min-h-[50vh] w-full flex-1 resize-none rounded-2xl border border-border-subtle bg-surface p-6 text-[17px] text-foreground shadow-sm transition-shadow duration-200 placeholder:text-foreground-muted/70 focus:border-accent focus:shadow-md focus:outline-none"
+          />
+        ) : (
+          <div className="min-h-[50vh] w-full overflow-y-auto rounded-2xl border border-border-subtle bg-surface p-6 text-[17px] text-foreground shadow-sm">
+            <MarkdownPreview content={content} />
+          </div>
+        )}
+      </div>
 
       <TagInput tags={tags} onChange={handleTagsChange} />
 
