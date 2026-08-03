@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Journal
 
-## Getting Started
+A local, distraction-free daily journal. No accounts, no auth, no network calls — it's meant to run on `localhost` only, with everything stored in a SQLite file on disk.
 
-First, run the development server:
+## Running it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The app opens on today's entry.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+On first run the database is created at `data/journal.db` and seeded with a few example entries from the past week so the calendar and stats aren't empty.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+- **Today** — a plain-text editor for the current day, with a 5-option mood picker, autosave (with a "Saved" indicator), and a live word count.
+- **Calendar** — a monthly grid with a mood-coloured dot on any day that has an entry. Click a day to open it; use the arrows or the "Today" button to navigate months.
+- **Search** — keyword search across all entries, with matching snippets and dates.
+- **All entries** — every entry, newest first.
+- **Stats** — current writing streak, total entries, and a mood breakdown for the month, shown on the Calendar page.
 
-To learn more about Next.js, take a look at the following resources:
+## Data
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Entries are stored one-per-day in a single SQLite table (`data/journal.db`, gitignored):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```ts
+{
+  date: string;        // "YYYY-MM-DD", primary key
+  content: string;     // plain text
+  mood: "great" | "good" | "okay" | "low" | "rough" | null;
+  created_at: string;  // ISO timestamp
+  updated_at: string;  // ISO timestamp
+}
+```
 
-## Deploy on Vercel
+## Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js (App Router) + TypeScript + Tailwind CSS + better-sqlite3.
