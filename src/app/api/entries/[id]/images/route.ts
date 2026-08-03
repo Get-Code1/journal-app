@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addImage, getImagesForDate } from "@/lib/images";
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+import { getEntryById } from "@/lib/entries";
+import { addImage, getImagesForEntry } from "@/lib/images";
 
 const ALLOWED_TYPES: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -12,24 +11,34 @@ const ALLOWED_TYPES: Record<string, string> = {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+function parseId(raw: string): number | null {
+  const id = Number(raw);
+  return Number.isInteger(id) ? id : null;
+}
+
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ date: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { date } = await params;
-  if (!DATE_RE.test(date)) {
-    return NextResponse.json({ error: "Invalid date" }, { status: 400 });
+  const id = parseId((await params).id);
+  if (id === null) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
-  return NextResponse.json({ images: getImagesForDate(date) });
+  return NextResponse.json({ images: getImagesForEntry(id) });
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ date: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { date } = await params;
-  if (!DATE_RE.test(date)) {
-    return NextResponse.json({ error: "Invalid date" }, { status: 400 });
+  const id = parseId((await params).id);
+  if (id === null) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const entry = getEntryById(id);
+  if (!entry) {
+    return NextResponse.json({ error: "Entry not found" }, { status: 404 });
   }
 
   const formData = await request.formData();
@@ -44,7 +53,7 @@ export async function POST(
     const ext = ALLOWED_TYPES[file.type];
     if (!ext || file.size === 0 || file.size > MAX_FILE_SIZE) continue;
     const buffer = Buffer.from(await file.arrayBuffer());
-    created.push(addImage(date, buffer, ext));
+    created.push(addImage(id, entry.date, buffer, ext));
   }
 
   if (created.length === 0) {

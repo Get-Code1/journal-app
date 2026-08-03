@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import DayEntryPoint from "@/components/DayEntryPoint";
+import Editor from "@/components/Editor";
 import { todayDateString } from "@/lib/entries";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export const dynamic = "force-dynamic";
 
-export default async function EntryDatePage({
+export default async function NewEntryPage({
   params,
 }: {
   params: Promise<{ date: string }>;
@@ -20,12 +20,19 @@ export default async function EntryDatePage({
   return (
     <div className="flex flex-col gap-4">
       <Link
-        href="/calendar"
+        href={isToday ? "/today" : `/entry/${date}`}
         className="w-fit text-sm text-foreground-muted transition-colors hover:text-foreground"
       >
-        ← Back to calendar
+        ← Back to this day
       </Link>
-      <DayEntryPoint key={date} date={date} isToday={isToday} />
+      <Editor
+        date={date}
+        entryId={null}
+        initialContent=""
+        initialMood={null}
+        initialImages={[]}
+        isToday={isToday}
+      />
     </div>
   );
 }

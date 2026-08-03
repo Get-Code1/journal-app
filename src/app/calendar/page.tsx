@@ -33,10 +33,13 @@ export default async function CalendarPage({
   const startDate = `${year}-${pad(month)}-01`;
   const endDate = `${year}-${pad(month)}-${pad(daysInMonth)}`;
 
+  // entries is ordered date ASC, created_at ASC, so the last entry of each
+  // day naturally overwrites earlier ones here — that's the "day's mood is
+  // its latest entry's mood" rule, skipping entries that left mood unset.
   const entries = getEntriesInRange(startDate, endDate);
   const moodByDate: Record<string, Mood | null> = {};
   for (const entry of entries) {
-    moodByDate[entry.date] = entry.mood;
+    if (entry.mood) moodByDate[entry.date] = entry.mood;
   }
   const imageDates = getDatesWithImagesInRange(startDate, endDate);
 

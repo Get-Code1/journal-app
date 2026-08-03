@@ -18,6 +18,13 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function formatTime(isoStr: string): string {
+  return new Date(isoStr).toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function preview(content: string): string {
   const flat = content.replace(/\s+/g, " ").trim();
   return flat.length > 160 ? `${flat.slice(0, 160)}…` : flat;
@@ -25,6 +32,12 @@ function preview(content: string): string {
 
 export default function EntriesPage() {
   const entries = getAllEntries();
+
+  // Same-day entries need their time shown to tell them apart.
+  const dateCounts = new Map<string, number>();
+  for (const entry of entries) {
+    dateCounts.set(entry.date, (dateCounts.get(entry.date) ?? 0) + 1);
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,15 +54,19 @@ export default function EntriesPage() {
 
       <ul className="flex flex-col gap-3">
         {entries.map((entry) => (
-          <li key={entry.date}>
+          <li key={entry.id}>
             <Link
-              href={`/entry/${entry.date}`}
+              href={`/entry/${entry.date}/${entry.id}`}
               className="block rounded-2xl border border-border-subtle bg-surface p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
             >
               <div className="mb-1.5 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   {moodEmoji(entry.mood) && <span>{moodEmoji(entry.mood)}</span>}
-                  <span>{formatDate(entry.date)}</span>
+                  <span>
+                    {formatDate(entry.date)}
+                    {(dateCounts.get(entry.date) ?? 0) > 1 &&
+                      ` · ${formatTime(entry.created_at)}`}
+                  </span>
                   {entry.hasImages && (
                     <span className="text-xs opacity-60" aria-label="Has photos">
                       📷

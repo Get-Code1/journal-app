@@ -1,13 +1,10 @@
 import db from "@/lib/db";
 import { shiftDateString, todayDateString } from "@/lib/date";
+import { getAllDatesWritten } from "@/lib/entries";
 import type { Mood } from "@/types";
 
 export function getWritingStreak(): number {
-  const rows = db
-    .prepare("SELECT date FROM entries ORDER BY date DESC")
-    .all() as { date: string }[];
-  const dates = new Set(rows.map((r) => r.date));
-
+  const dates = getAllDatesWritten();
   const today = todayDateString();
   let cursor = today;
 

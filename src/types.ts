@@ -29,6 +29,7 @@ export const MOOD_VALUES: Record<Mood, number> = {
 };
 
 export interface Entry {
+  id: number;
   date: string; // "YYYY-MM-DD"
   content: string;
   mood: Mood | null;
@@ -43,6 +44,7 @@ export interface EntrySummary extends Entry {
 
 export interface ImageAttachment {
   id: number;
+  entryId: number;
   date: string;
   filename: string;
   createdAt: string;

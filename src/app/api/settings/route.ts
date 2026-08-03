@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readJsonBody } from "@/lib/http";
 import { getSettings, updateSettings } from "@/lib/settings";
 
 export async function GET() {
@@ -6,7 +7,10 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (body === null) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
   const displayName =
     typeof body.displayName === "string" ? body.displayName.slice(0, 60) : undefined;

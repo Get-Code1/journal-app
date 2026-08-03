@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import ImageGallery from "@/components/ImageGallery";
 import MoodPicker from "@/components/MoodPicker";
 import SavedIndicator, { type SaveStatus } from "@/components/SavedIndicator";
@@ -25,34 +26,67 @@ function countWords(text: string): number {
 
 interface EditorProps {
   date: string;
+  entryId: number | null;
   initialContent: string;
   initialMood: Mood | null;
   initialImages: ImageAttachment[];
   isToday?: boolean;
+  // When creating a brand new entry, stay on the current URL instead of
+  // redirecting to /entry/[date]/[id] — used by /today so the daily-use
+  // flow keeps its single, stable URL.
+  keepUrlOnCreate?: boolean;
 }
 
 const AUTOSAVE_DELAY = 900;
 
 export default function Editor({
   date,
+  entryId,
   initialContent,
   initialMood,
   initialImages,
   isToday,
+  keepUrlOnCreate,
 }: EditorProps) {
+  const router = useRouter();
   const [content, setContent] = useState(initialContent);
   const [mood, setMood] = useState<Mood | null>(initialMood);
+  const [id, setId] = useState<number | null>(entryId);
   const [status, setStatus] = useState<SaveStatus>("idle");
+  const [deleting, setDeleting] = useState(false);
 
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ content: initialContent, mood: initialMood });
+  const idRef = useRef<number | null>(entryId);
+  const creating = useRef<Promise<number> | null>(null);
+
+  const ensureEntryId = useCallback(async (): Promise<number> => {
+    if (idRef.current !== null) return idRef.current;
+    if (creating.current) return creating.current;
+
+    creating.current = (async () => {
+      const res = await fetch("/api/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, content: "", mood: null }),
+      });
+      const data = await res.json();
+      idRef.current = data.entry.id;
+      setId(data.entry.id);
+      return data.entry.id as number;
+    })();
+
+    return creating.current;
+  }, [date]);
 
   const save = useCallback(
     async (nextContent: string, nextMood: Mood | null) => {
       setStatus("saving");
       try {
-        const res = await fetch(`/api/entries/${date}`, {
+        const wasNew = idRef.current === null;
+        const currentId = await ensureEntryId();
+        const res = await fetch(`/api/entries/${currentId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: nextContent, mood: nextMood }),
@@ -61,11 +95,17 @@ export default function Editor({
         setStatus("saved");
         if (savedTimeout.current) clearTimeout(savedTimeout.current);
         savedTimeout.current = setTimeout(() => setStatus("idle"), 2000);
+        // Give a new entry a stable, bookmarkable URL once it's actually
+        // saved. Delayed slightly so the "Saved" confirmation is visible
+        // for a moment before the route swaps out from under it.
+        if (wasNew && !keepUrlOnCreate) {
+          setTimeout(() => router.replace(`/entry/${date}/${currentId}`), 600);
+        }
       } catch {
         setStatus("error");
       }
     },
-    [date]
+    [ensureEntryId, date, keepUrlOnCreate, router]
   );
 
   const scheduleSave = useCallback(
@@ -94,6 +134,19 @@ export default function Editor({
   function handleMoodChange(value: Mood) {
     setMood(value);
     scheduleSave(content, value);
+  }
+
+  async function handleDelete() {
+    if (id === null) return;
+    if (!confirm("Delete this entry? This can't be undone.")) return;
+
+    setDeleting(true);
+    try {
+      await fetch(`/api/entries/${id}`, { method: "DELETE" });
+      router.push(isToday ? "/today" : `/entry/${date}`);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -126,9 +179,23 @@ export default function Editor({
 
       <div className="flex items-center justify-between text-xs text-foreground-muted">
         <span>{countWords(content)} words</span>
+        {id !== null && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-foreground-muted transition-colors hover:text-red-500 disabled:opacity-50"
+          >
+            {deleting ? "Deleting…" : "Delete entry"}
+          </button>
+        )}
       </div>
 
-      <ImageGallery date={date} initialImages={initialImages} />
+      <ImageGallery
+        entryId={id}
+        initialImages={initialImages}
+        ensureEntryId={ensureEntryId}
+      />
     </div>
   );
 }

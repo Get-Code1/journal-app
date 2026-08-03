@@ -3,10 +3,10 @@ import { deleteImage } from "@/lib/images";
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ date: string; id: string }> }
+  { params }: { params: Promise<{ id: string; imageId: string }> }
 ) {
-  const { id } = await params;
-  const numId = Number(id);
+  const { imageId } = await params;
+  const numId = Number(imageId);
   if (!Number.isInteger(numId)) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }

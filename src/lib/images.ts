@@ -8,6 +8,7 @@ const IMAGES_DIR = path.join(process.cwd(), "data", "images");
 
 interface ImageRow {
   id: number;
+  entry_id: number;
   date: string;
   filename: string;
   created_at: string;
@@ -16,6 +17,7 @@ interface ImageRow {
 function toAttachment(row: ImageRow): ImageAttachment {
   return {
     id: row.id,
+    entryId: row.entry_id,
     date: row.date,
     filename: row.filename,
     createdAt: row.created_at,
@@ -32,25 +34,26 @@ function ensureImagesDir(): void {
   }
 }
 
-export function getImagesForDate(date: string): ImageAttachment[] {
+export function getImagesForEntry(entryId: number): ImageAttachment[] {
   const rows = db
-    .prepare("SELECT * FROM images WHERE date = ? ORDER BY id ASC")
-    .all(date) as unknown as ImageRow[];
+    .prepare("SELECT * FROM images WHERE entry_id = ? ORDER BY id ASC")
+    .all(entryId) as unknown as ImageRow[];
   return rows.map(toAttachment);
 }
 
-export function getDatesWithImages(dates: string[]): Set<string> {
-  if (dates.length === 0) return new Set();
-  const placeholders = dates.map(() => "?").join(",");
+export function getEntryIdsWithImages(entryIds: number[]): Set<number> {
+  if (entryIds.length === 0) return new Set();
+  const placeholders = entryIds.map(() => "?").join(",");
   const rows = db
-    .prepare(`SELECT DISTINCT date FROM images WHERE date IN (${placeholders})`)
-    .all(...dates) as unknown as { date: string }[];
-  return new Set(rows.map((r) => r.date));
+    .prepare(
+      `SELECT DISTINCT entry_id FROM images WHERE entry_id IN (${placeholders})`
+    )
+    .all(...entryIds) as unknown as { entry_id: number }[];
+  return new Set(rows.map((r) => r.entry_id));
 }
 
-// Unlike getDatesWithImages, this doesn't require the caller to already know
-// which dates to check — it finds every image date in a range directly, so
-// it also catches dates with photos but no saved text (no entries row yet).
+// Finds every image date in a range directly (rather than checking a known
+// list of dates), so it also catches dates with photos but no entry text.
 export function getDatesWithImagesInRange(
   startDate: string,
   endDate: string
@@ -64,6 +67,7 @@ export function getDatesWithImagesInRange(
 }
 
 export function addImage(
+  entryId: number,
   date: string,
   buffer: Buffer,
   ext: string
@@ -74,11 +78,14 @@ export function addImage(
 
   const now = new Date().toISOString();
   const result = db
-    .prepare("INSERT INTO images (date, filename, created_at) VALUES (?, ?, ?)")
-    .run(date, filename, now);
+    .prepare(
+      "INSERT INTO images (entry_id, date, filename, created_at) VALUES (?, ?, ?, ?)"
+    )
+    .run(entryId, date, filename, now);
 
   return {
     id: Number(result.lastInsertRowid),
+    entryId,
     date,
     filename,
     createdAt: now,

@@ -64,9 +64,9 @@ export default async function SearchPage({
 
       <ul className="flex flex-col gap-3">
         {results.map((result) => (
-          <li key={result.date}>
+          <li key={result.id}>
             <Link
-              href={`/entry/${result.date}`}
+              href={`/entry/${result.date}/${result.id}`}
               className="block rounded-2xl border border-border-subtle bg-surface p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
             >
               <div className="mb-1.5 flex items-center gap-2 text-sm font-medium">

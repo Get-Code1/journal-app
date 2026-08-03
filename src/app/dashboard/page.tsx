@@ -1,7 +1,7 @@
 import Link from "next/link";
 import MoodTrendChart from "@/components/MoodTrendChart";
 import { getGoalProgress, getMemory, getMoodTrend } from "@/lib/dashboard";
-import { getEntry, todayDateString } from "@/lib/entries";
+import { getEntriesForDate, getMoodForDate, todayDateString } from "@/lib/entries";
 import { getSettings } from "@/lib/settings";
 import { getWritingStreak } from "@/lib/stats";
 import { MOODS } from "@/types";
@@ -40,8 +40,9 @@ function moodEmoji(mood: string | null) {
 export default function DashboardPage() {
   const settings = getSettings();
   const today = todayDateString();
-  const todayEntry = getEntry(today);
-  const hasWrittenToday = !!todayEntry?.content.trim();
+  const todayEntries = getEntriesForDate(today);
+  const hasWrittenToday = todayEntries.some((e) => e.content.trim());
+  const todayMood = getMoodForDate(today);
 
   const streak = getWritingStreak();
   const goals = getGoalProgress(settings.weeklyGoal, settings.monthlyGoal);
@@ -67,7 +68,7 @@ export default function DashboardPage() {
         >
           <span className="text-sm text-foreground-muted">
             ✓ You&rsquo;ve written today
-            {todayEntry?.mood && <> · {moodEmoji(todayEntry.mood)}</>}
+            {todayMood && <> · {moodEmoji(todayMood)}</>}
           </span>
           <span className="text-sm font-medium text-accent">Review →</span>
         </Link>
@@ -113,7 +114,7 @@ export default function DashboardPage() {
 
       {memory ? (
         <Link
-          href={`/entry/${memory.entry.date}`}
+          href={`/entry/${memory.entry.date}/${memory.entry.id}`}
           className="flex flex-col gap-2 rounded-2xl border border-border-subtle bg-surface p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
         >
           <h2 className="text-sm font-medium">

@@ -5,11 +5,13 @@ import Lightbox from "@/components/Lightbox";
 import type { ImageAttachment } from "@/types";
 
 export default function ImageGallery({
-  date,
+  entryId,
   initialImages,
+  ensureEntryId,
 }: {
-  date: string;
+  entryId: number | null;
   initialImages: ImageAttachment[];
+  ensureEntryId: () => Promise<number>;
 }) {
   const [images, setImages] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
@@ -23,10 +25,12 @@ export default function ImageGallery({
 
     setUploading(true);
     try {
+      const id = entryId ?? (await ensureEntryId());
+
       const formData = new FormData();
       for (const file of list) formData.append("file", file);
 
-      const res = await fetch(`/api/entries/${date}/images`, {
+      const res = await fetch(`/api/entries/${id}/images`, {
         method: "POST",
         body: formData,
       });
@@ -39,10 +43,13 @@ export default function ImageGallery({
     }
   }
 
-  async function removeImage(id: number) {
-    setImages((prev) => prev.filter((img) => img.id !== id));
+  async function removeImage(imageId: number) {
+    if (entryId === null) return;
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
     setLightboxIndex(null);
-    await fetch(`/api/entries/${date}/images/${id}`, { method: "DELETE" });
+    await fetch(`/api/entries/${entryId}/images/${imageId}`, {
+      method: "DELETE",
+    });
   }
 
   return (
