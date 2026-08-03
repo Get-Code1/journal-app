@@ -49,7 +49,15 @@ export default async function EntriesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-medium tracking-tight">All entries</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-medium tracking-tight">All entries</h1>
+        <Link
+          href="/export"
+          className="text-sm text-foreground-muted transition-colors hover:text-foreground"
+        >
+          Export / Print →
+        </Link>
+      </div>
 
       {allTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">

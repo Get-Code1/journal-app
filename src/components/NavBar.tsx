@@ -15,7 +15,7 @@ export default function NavBar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-10 border-b border-border-subtle bg-surface/80 backdrop-blur-md">
+    <header className="sticky top-0 z-10 border-b border-border-subtle bg-surface/80 backdrop-blur-md print:hidden">
       <nav className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Link
           href="/dashboard"

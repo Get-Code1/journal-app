@@ -117,6 +117,17 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* The export page renders its printable content in fixed neutral colors
+   (independent of the active theme); this guarantees a plain white page
+   behind it regardless of theme, so printing from a dark theme doesn't
+   waste ink. !important because Tailwind's utility layer otherwise loses
+   to this file's own unlayered `body` rule above, layer order aside. */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+}
+
 ::selection {
   background: var(--accent-soft);
   color: var(--foreground);
